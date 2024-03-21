@@ -8,6 +8,7 @@ const BlogPost = new Schema(
 		title: { type: String, required: true, minLength: 3 },
 		content: { type: String, required: true, minLength: 3 },
 		date: { type: Date, required: true, default: Date.now() },
+		isPublished: { type: Boolean, rquired: true },
 	},
 	{
 		virtuals: {
