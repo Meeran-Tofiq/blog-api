@@ -119,7 +119,7 @@ blogPostController.putBlogPost = [
 				throw new Error("CastError");
 			}
 
-			if (blogPostToUpdate.user !== user.id) {
+			if (blogPostToUpdate.user.toString() !== user._id) {
 				throw new Error("Unauthorized");
 			}
 
@@ -166,7 +166,7 @@ blogPostController.deleteBlogPost = asyncHandler(async (req, res, next) => {
 			throw new Error("CastError");
 		}
 
-		if (blogPostToDelete.user !== user.id) {
+		if (blogPostToDelete.user.toString() !== user._id) {
 			throw new Error("Unauthorized");
 		}
 
