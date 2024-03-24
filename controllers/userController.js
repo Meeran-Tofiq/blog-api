@@ -54,7 +54,16 @@ userController.postUser = [
 				const token = jwtUtil.generateWebToken(user);
 				res.status(200).json(token);
 			});
-		} catch (error) {}
+		} catch (error) {
+			if (
+				error.name === "JsonWebTokenError" ||
+				error.name === "TokenExpiredError"
+			) {
+				res.status(403).json("Invalid or expired token.");
+			} else {
+				res.status(500).json("Internal server error.");
+			}
+		}
 	}),
 ];
 
