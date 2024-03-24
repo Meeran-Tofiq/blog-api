@@ -1,5 +1,16 @@
 const jwt = require("jsonwebtoken");
 
+function extractToken(req, res, next) {
+	const bearerHeader = req.headers.authorization;
+
+	if (bearerHeader) {
+		const bearer = bearerHeader.split(" ");
+		const token = bearer[1];
+		req.token = token;
+		next();
+	}
+}
+
 function generateWebToken(user) {
 	return jwt.sign({ user }, process.env.JWT_SECRET);
 }
@@ -16,4 +27,4 @@ async function verifyWebToken(token) {
 	});
 }
 
-module.exports = { generateWebToken, verifyWebToken };
+module.exports = { extractToken, generateWebToken, verifyWebToken };

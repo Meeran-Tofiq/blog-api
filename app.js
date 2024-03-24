@@ -8,6 +8,7 @@ var logger = require("morgan");
 const mongoose = require("mongoose");
 
 var apiRouter = require("./routes/api");
+const { extractToken } = require("./util/jwtUtil");
 
 var app = express();
 
@@ -25,6 +26,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(extractToken);
 
 app.use("/api", apiRouter);
 
