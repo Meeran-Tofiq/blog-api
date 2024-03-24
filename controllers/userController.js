@@ -147,7 +147,7 @@ userController.putUser = [
 				throw new Error("CastError");
 			}
 
-			if (userToUpdate.user !== user.id) {
+			if (userToUpdate.id.toString() !== user._id) {
 				throw new Error("Unauthorized");
 			}
 
@@ -197,7 +197,7 @@ userController.deleteUser = asyncHandler(async (req, res, next) => {
 			throw new Error("CastError");
 		}
 
-		if (userToDelete.user !== user.id) {
+		if (userToDelete.id.toString() !== user._id) {
 			throw new Error("Unauthorized");
 		}
 
