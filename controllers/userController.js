@@ -75,7 +75,88 @@ userController.getUser = asyncHandler(async (req, res, next) => {
 	res.json({ uesr });
 });
 
-userController.putUser = asyncHandler((req, res, next) => {});
+userController.putUser = [
+	body("username")
+		.trim()
+		.isLength({ min: 1 })
+		.escape()
+		.withMessage("Username must not be empty.")
+		.custom(async (value) => {
+			const user = await User.findOne({
+				username: value,
+			}).exec();
+
+			if (user) return false;
+
+			return true;
+		})
+		.withMessage("Username is already taken."),
+	body("password")
+		.trim()
+		.isLength({ min: 1 })
+		.escape()
+		.withMessage("Password must not be empty."),
+	body("canPost").trim().isBoolean().escape(),
+	body("passwordConfirmation")
+		.custom((value, { req }) => {
+			return value === req.body.password;
+		})
+		.withMessage("Password and confirm password do not match."),
+	,
+	asyncHandler(async (req, res, next) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		try {
+			const decoded = await jwtUtil.verifyWebToken(req.token);
+			const user = decoded.user;
+			const userToUpdate = await User.findById(req.params.userId).exec();
+
+			if (!userToUpdate) {
+				throw new Error("CastError");
+			}
+
+			if (userToUpdate.user !== user.id) {
+				throw new Error("Unauthorized");
+			}
+
+			const updateObject = {};
+			if (req.body.username) {
+				updateObject.username = req.body.username;
+			}
+			if (req.body.password) {
+				updateObject.password = req.body.password;
+			}
+			if (req.body.canPost) {
+				updateObject.canPost = req.body.canPost;
+			}
+
+			await User.updateOne(
+				{ _id: req.params.blogPostId },
+				{ $set: updateObject }
+			);
+			res.sendStatus(200);
+		} catch (error) {
+			if (
+				error.name === "JsonWebTokenError" ||
+				error.name === "TokenExpiredError"
+			) {
+				res.status(403).json("Invalid or expired token.");
+			} else if (error.message === "Unauthorized") {
+				res.status(403).json(
+					"User is not authorized to update this user."
+				);
+			} else if (error.name === "CastError") {
+				res.status(404).json("User not found.");
+			} else {
+				res.status(500).json("Internal server error.");
+			}
+		}
+	}),
+];
 
 userController.deleteUser = asyncHandler((req, res, next) => {});
 
