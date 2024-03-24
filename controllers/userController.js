@@ -23,10 +23,14 @@ userController.postUser = [
 		})
 		.withMessage("Username is already taken."),
 	body("password")
-		.trim()
-		.isLength({ min: 1 })
-		.escape()
-		.withMessage("Password must not be empty."),
+		.isLength({ min: 8 })
+		.withMessage("Password must be at least 8 characters long")
+		.matches(
+			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/
+		)
+		.withMessage(
+			"Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character"
+		),
 	body("canPost").trim().isBoolean().escape(),
 	body("passwordConfirmation")
 		.custom((value, { req }) => {
@@ -92,10 +96,14 @@ userController.putUser = [
 		})
 		.withMessage("Username is already taken."),
 	body("password")
-		.trim()
-		.isLength({ min: 1 })
-		.escape()
-		.withMessage("Password must not be empty."),
+		.isLength({ min: 8 })
+		.withMessage("Password must be at least 8 characters long")
+		.matches(
+			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/
+		)
+		.withMessage(
+			"Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character"
+		),
 	body("canPost").trim().isBoolean().escape(),
 	body("passwordConfirmation")
 		.custom((value, { req }) => {
@@ -163,12 +171,12 @@ userController.deleteUser = asyncHandler((req, res, next) => {});
 userController.login = [
 	body("username")
 		.trim()
-		.isLength({ min: 1 })
+		.notEmpty()
 		.escape()
 		.withMessage("Username must not be empty."),
 	body("password")
 		.trim()
-		.isLength({ min: 1 })
+		.notEmpty()
 		.escape()
 		.withMessage("Password must not be empty."),
 	asyncHandler(async (req, res, next) => {
