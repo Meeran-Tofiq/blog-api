@@ -99,6 +99,7 @@ userController.getUser = asyncHandler(async (req, res, next) => {
 
 userController.putUser = [
 	body("username")
+		.optional()
 		.trim()
 		.isLength({ min: 1 })
 		.escape()
@@ -114,6 +115,7 @@ userController.putUser = [
 		})
 		.withMessage("Username is already taken."),
 	body("password")
+		.optional()
 		.isLength({ min: 8 })
 		.withMessage("Password must be at least 8 characters long")
 		.matches(
@@ -122,8 +124,9 @@ userController.putUser = [
 		.withMessage(
 			"Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character"
 		),
-	body("canPost").trim().isBoolean().escape(),
+	body("canPost").trim().isBoolean().escape().optional(),
 	body("passwordConfirmation")
+		.optional()
 		.custom((value, { req }) => {
 			return value === req.body.password;
 		})
