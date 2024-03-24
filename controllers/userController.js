@@ -1,7 +1,7 @@
 const User = require("../models/user");
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
-const jwt = require("jsonwebtoken");
+const jwtUtil = require("../util/jwtUtil");
 
 let userController = {};
 
@@ -34,12 +34,8 @@ userController.login = [
 			res.status(401).send("Invalid username or password.");
 		}
 
-		res.json(generateWebToken(user));
+		res.json(jwtUtil.generateWebToken(user));
 	}),
 ];
-
-function generateWebToken(user) {
-	return jwt.sign({ user }, process.env.JWT_SECRET);
-}
 
 module.exports = userController;
