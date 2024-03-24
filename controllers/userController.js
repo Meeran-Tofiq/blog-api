@@ -200,7 +200,7 @@ userController.deleteUser = asyncHandler(async (req, res, next) => {
 			throw new Error("Unauthorized");
 		}
 
-		await User.deleteOne({ _id: req.params.userToDelete });
+		await User.deleteOne({ _id: req.params.userId });
 		res.sendStatus(200);
 	} catch (error) {
 		if (
