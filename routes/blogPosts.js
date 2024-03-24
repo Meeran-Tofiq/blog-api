@@ -3,7 +3,7 @@ const router = express.Router();
 const blogPostController = require("../controllers/blogPostController");
 
 // CREATE BLOG POST
-router.post("/", blogPostController.getBlogPost);
+router.post("/", blogPostController.postBlogPost);
 
 // READ BLOG POST(S)
 router.get("/", blogPostController.getMultipleBlogPosts);
