@@ -86,16 +86,19 @@ blogPostController.getMultipleBlogPosts = asyncHandler(
 
 blogPostController.putBlogPost = [
 	body("title")
+		.optional()
 		.trim()
 		.isLength({ min: 3 })
 		.escape()
 		.withMessage("Title must be at least 3 characters."),
 	body("content")
+		.optional()
 		.trim()
 		.isLength({ min: 3 })
 		.escape()
 		.withMessage("content must be at least 3 characters."),
 	body("isPublished")
+		.optional()
 		.isBoolean()
 		.withMessage("Choose whether this post is published or not."),
 	asyncHandler(async (req, res, next) => {
