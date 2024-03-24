@@ -61,18 +61,28 @@ blogPostController.postBlogPost = [
 ];
 
 blogPostController.getBlogPost = asyncHandler(async (req, res, next) => {
-	const blogPost = await BlogPost.findById(req.params.blogPostId).exec();
-	if (!blogPost) res.status(404).json("Not found.");
-	res.status(200).json({ data: blogPost });
+	try {
+		const blogPost = await BlogPost.findById(req.params.blogPostId).exec();
+		if (!blogPost) {
+			return res.status(404).json("Blog post not found.");
+		}
+		res.status(200).json({ data: blogPost });
+	} catch (error) {
+		res.status(500).json("Internal server error.");
+	}
 });
 
 blogPostController.getMultipleBlogPosts = asyncHandler(
 	async (req, res, next) => {
-		const blogPosts = await BlogPost.find()
-			.sort({ date: -1 })
-			.limit(20)
-			.exec();
-		res.status(200).json({ data: blogPosts });
+		try {
+			const blogPosts = await BlogPost.find()
+				.sort({ date: -1 })
+				.limit(20)
+				.exec();
+			res.status(200).json({ data: blogPosts });
+		} catch (error) {
+			res.status(500).json("Internal server error.");
+		}
 	}
 );
 
