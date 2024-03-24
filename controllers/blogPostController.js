@@ -57,6 +57,16 @@ blogPostController.getBlogPost = asyncHandler(async (req, res, next) => {
 	res.status(200).json({ data: blogPost });
 });
 
+blogPostController.getMultipleBlogPosts = asyncHandler(
+	async (req, res, next) => {
+		const blogPosts = await BlogPost.find()
+			.sort({ date: -1 })
+			.limit(20)
+			.exec();
+		res.status(200).json({ data: blogPosts });
+	}
+);
+
 blogPostController.putBlogPost = asyncHandler((req, res, next) => {});
 
 blogPostController.deleteBlogPost = asyncHandler((req, res, next) => {});
