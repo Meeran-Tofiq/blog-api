@@ -24,8 +24,8 @@ blogPostController.postBlogPost = [
 	asyncHandler(async (req, res, next) => {
 		const errors = validationResult(req);
 
-		if (errors) {
-			res.send(400).json({ errors });
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
 		}
 
 		try {
@@ -86,8 +86,8 @@ blogPostController.putBlogPost = [
 	asyncHandler(async (req, res, next) => {
 		const errors = validationResult(req);
 
-		if (errors) {
-			res.send(400).json({ errors });
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
 		}
 
 		try {
@@ -139,8 +139,8 @@ blogPostController.putBlogPost = [
 blogPostController.deleteBlogPost = asyncHandler(async (req, res, next) => {
 	const errors = validationResult(req);
 
-	if (errors) {
-		res.send(400).json({ errors });
+	if (!errors.isEmpty()) {
+		return res.status(400).json({ errors: errors.array() });
 	}
 
 	try {
