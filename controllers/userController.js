@@ -31,10 +31,10 @@ userController.login = [
 		}).exec();
 
 		if (!user) {
-			res.status(401).send("Invalid username or password.");
+			res.status(401).json("Invalid username or password.");
 		}
 
-		res.json(jwtUtil.generateWebToken(user));
+		res.status(200).json(jwtUtil.generateWebToken(user));
 	}),
 ];
 

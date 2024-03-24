@@ -44,9 +44,9 @@ blogPostController.postBlogPost = [
 			});
 
 			await blogPost.save();
-			res.send(200);
+			res.sendStatus(200);
 		} catch (error) {
-			res.send(403).json("Unable to verify user, or user can't post.");
+			res.status(403).json("Unable to verify user, or user can't post.");
 		}
 	}),
 ];
