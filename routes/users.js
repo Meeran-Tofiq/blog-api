@@ -1,8 +1,20 @@
 const express = require("express");
 const router = express.Router();
+const userController = require("../controllers/userController");
 
-router.get("/", function (req, res, next) {
-	res.send("USER: respond with a resource");
-});
+// CREATE USER
+router.post("/:userId", userController.postUser);
+
+// READ USER
+router.get("/:userId", userController.getUser);
+
+// UPDATE USER
+router.put("/:userId", userController.putUser);
+
+// DELETE USER
+router.delete("/:userId", userController.deleteUser);
+
+// LOGIN USER
+router.post("/login", userController.postLogin);
 
 module.exports = router;
