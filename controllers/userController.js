@@ -184,7 +184,37 @@ userController.putUser = [
 	}),
 ];
 
-userController.deleteUser = asyncHandler(async (req, res, next) => {});
+userController.deleteUser = asyncHandler(async (req, res, next) => {
+	try {
+		const decoded = await jwtUtil.verifyWebToken(req.token);
+		const user = decoded.user;
+		const userToDelete = await User.findById(req.params.userId).exec();
+
+		if (!userToDelete) {
+			throw new Error("CastError");
+		}
+
+		if (userToDelete.user !== user.id) {
+			throw new Error("Unauthorized");
+		}
+
+		await userToDelete.deleteOne({ _id: req.params.userToDelete });
+		res.sendStatus(200);
+	} catch (error) {
+		if (
+			error.name === "JsonWebTokenError" ||
+			error.name === "TokenExpiredError"
+		) {
+			res.status(403).json("Invalid or expired token.");
+		} else if (error.message === "Unauthorized") {
+			res.status(403).json("User is not authorized to delete.");
+		} else if (error.name === "CastError") {
+			res.status(404).json("User not found.");
+		} else {
+			res.status(500).json("Internal server error.");
+		}
+	}
+});
 
 userController.postLogin = [
 	body("username")
