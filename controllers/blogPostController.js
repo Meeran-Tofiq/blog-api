@@ -97,11 +97,9 @@ blogPostController.putBlogPost = [
 		.isLength({ min: 3 })
 		.escape()
 		.withMessage("content must be at least 3 characters."),
-	,
 	body("isPublished")
 		.isBoolean()
 		.withMessage("Choose whether this post is published or not."),
-	,
 	asyncHandler(async (req, res, next) => {
 		const errors = validationResult(req);
 
