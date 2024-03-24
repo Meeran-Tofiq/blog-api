@@ -33,7 +33,7 @@ blogPostController.postBlogPost = [
 			const user = decoded.user;
 
 			if (!user.canPost) {
-				throw new Error();
+				throw new Error("Unauthorized");
 			}
 
 			const blogPost = new BlogPost({
@@ -46,7 +46,16 @@ blogPostController.postBlogPost = [
 			await blogPost.save();
 			res.sendStatus(200);
 		} catch (error) {
-			res.status(403).json("Unable to verify user, or user can't post.");
+			if (
+				error.name === "JsonWebTokenError" ||
+				error.name === "TokenExpiredError"
+			) {
+				res.status(403).json("Invalid or expired token.");
+			} else if (error.message === "Unauthorized") {
+				res.status(403).json("User is not authorized to post.");
+			} else {
+				res.status(500).json("Internal server error.");
+			}
 		}
 	}),
 ];
