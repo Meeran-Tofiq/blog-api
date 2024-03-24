@@ -58,7 +58,13 @@ userController.postUser = [
 	}),
 ];
 
-userController.getUser = asyncHandler((req, res, next) => {});
+userController.getUser = asyncHandler(async (req, res, next) => {
+	const user = await User.findById(req.params.userId);
+
+	if (!user) res.status(404).json("User not found.");
+
+	res.json({ uesr });
+});
 
 userController.putUser = asyncHandler((req, res, next) => {});
 
