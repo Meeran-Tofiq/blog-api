@@ -67,7 +67,54 @@ blogPostController.getMultipleBlogPosts = asyncHandler(
 	}
 );
 
-blogPostController.putBlogPost = asyncHandler((req, res, next) => {});
+blogPostController.putBlogPost = [
+	body("title")
+		.trim()
+		.isLength({ min: 3 })
+		.escape()
+		.withMessage("Title must be at least 3 characters."),
+	body("content")
+		.trim()
+		.isLength({ min: 3 })
+		.escape()
+		.withMessage("content must be at least 3 characters."),
+	,
+	body("isPublished")
+		.isBoolean()
+		.withMessage("Choose whether this post is published or not."),
+	,
+	asyncHandler(async (req, res, next) => {
+		const errors = validationResult(req);
+
+		if (errors) {
+			res.send(400).json({ errors });
+		}
+
+		try {
+			const decoded = await jwtUtil.verifyWebToken(req.token);
+			const user = decoded.user;
+
+			if (!user.canPost) {
+				throw new Error();
+			}
+
+			await BlogPost.updateOne(
+				{ _id: req.params.blogPostId },
+				{
+					$set: {
+						title: req.body.title,
+						content: req.body.content,
+						isPublished: req.body.isPublished,
+						date: Date.now(),
+					},
+				}
+			);
+			res.sendStatus(200);
+		} catch (error) {
+			res.status(403).json("Unable to verify user, or user can't post.");
+		}
+	}),
+];
 
 blogPostController.deleteBlogPost = asyncHandler((req, res, next) => {});
 
