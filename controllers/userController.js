@@ -2,6 +2,7 @@ const User = require("../models/user");
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 const jwtUtil = require("../util/jwtUtil");
+const bcrypt = require("bcryptjs");
 
 let userController = {};
 
@@ -25,16 +26,31 @@ userController.login = [
 		.escape()
 		.withMessage("Password must not be empty."),
 	asyncHandler(async (req, res, next) => {
-		const user = await User.find({
-			username: req.body.username,
-			password: req.body.password,
-		}).exec();
+		try {
+			const user = await User.findOne({
+				username: req.body.username,
+			}).exec();
 
-		if (!user) {
-			res.status(401).json("Invalid username or password.");
+			const match = await bcrypt.compare(
+				req.body.password,
+				user.password
+			);
+
+			if (!user || !match) throw new Error("CastError");
+
+			res.status(200).json(jwtUtil.generateWebToken(user));
+		} catch (error) {
+			if (
+				error.name === "JsonWebTokenError" ||
+				error.name === "TokenExpiredError"
+			) {
+				res.status(403).json("Invalid or expired token.");
+			} else if (error.name === "CastError") {
+				res.status(401).json("Invalid username or password.");
+			} else {
+				res.status(500).json("Internal server error.");
+			}
 		}
-
-		res.status(200).json(jwtUtil.generateWebToken(user));
 	}),
 ];
 
