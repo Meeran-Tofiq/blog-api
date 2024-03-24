@@ -25,7 +25,7 @@ userController.login = [
 		.escape()
 		.withMessage("Password must not be empty."),
 	asyncHandler(async (req, res, next) => {
-		const user = User.find({
+		const user = await User.find({
 			username: req.body.username,
 			password: req.body.password,
 		}).exec();
