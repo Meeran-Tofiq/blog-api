@@ -51,7 +51,11 @@ blogPostController.postBlogPost = [
 	}),
 ];
 
-blogPostController.getBlogPost = asyncHandler((req, res, next) => {});
+blogPostController.getBlogPost = asyncHandler(async (req, res, next) => {
+	const blogPost = await BlogPost.findById(req.params.blogPostId).exec();
+	if (!blogPost) res.status(404).json("Not found.");
+	res.status(200).json({ data: blogPost });
+});
 
 blogPostController.putBlogPost = asyncHandler((req, res, next) => {});
 
