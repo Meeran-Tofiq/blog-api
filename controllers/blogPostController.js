@@ -93,9 +93,16 @@ blogPostController.putBlogPost = [
 		try {
 			const decoded = await jwtUtil.verifyWebToken(req.token);
 			const user = decoded.user;
+			const blogPostToUpdate = await BlogPost.findById(
+				req.params.blogPostId
+			).exec();
 
-			if (!user.canPost) {
-				throw new Error();
+			if (!blogPostToUpdate) {
+				throw new Error("CastError");
+			}
+
+			if (blogPostToUpdate.user !== user.id) {
+				throw new Error("Unauthorized");
 			}
 
 			await BlogPost.updateOne(
@@ -111,7 +118,20 @@ blogPostController.putBlogPost = [
 			);
 			res.sendStatus(200);
 		} catch (error) {
-			res.status(403).json("Unable to verify user, or user can't post.");
+			if (
+				error.name === "JsonWebTokenError" ||
+				error.name === "TokenExpiredError"
+			) {
+				res.status(403).json("Invalid or expired token.");
+			} else if (error.message === "Unauthorized") {
+				res.status(403).json(
+					"User is not authorized to update this blog post."
+				);
+			} else if (error.name === "CastError") {
+				res.status(404).json("Blog post not found.");
+			} else {
+				res.status(500).json("Internal server error.");
+			}
 		}
 	}),
 ];
