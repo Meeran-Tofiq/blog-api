@@ -72,11 +72,29 @@ userController.postUser = [
 ];
 
 userController.getUser = asyncHandler(async (req, res, next) => {
-	const user = await User.findById(req.params.userId);
+	try {
+		const decoded = await jwtUtil.verifyWebToken(req.token);
+		const tokenUser = decoded.user;
+		const user = await User.findById(req.params.userId);
 
-	if (!user) res.status(404).json("User not found.");
+		if (!user) res.status(404).json("User not found.");
 
-	res.json({ uesr });
+		if (user.username !== tokenUser.username)
+			throw new Error("Unauthorized");
+
+		res.json({ uesr });
+	} catch (error) {
+		if (
+			error.name === "JsonWebTokenError" ||
+			error.name === "TokenExpiredError"
+		) {
+			res.status(403).json("Invalid or expired token.");
+		} else if (error.message === "Unauthorized") {
+			res.status(403).json("User is not authorized to update this user.");
+		} else {
+			res.status(500).json("Internal server error.");
+		}
+	}
 });
 
 userController.putUser = [
@@ -166,7 +184,7 @@ userController.putUser = [
 	}),
 ];
 
-userController.deleteUser = asyncHandler((req, res, next) => {});
+userController.deleteUser = asyncHandler(async (req, res, next) => {});
 
 userController.login = [
 	body("username")
