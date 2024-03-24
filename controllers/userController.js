@@ -160,7 +160,7 @@ userController.putUser = [
 			}
 
 			await User.updateOne(
-				{ _id: req.params.blogPostId },
+				{ _id: req.params.userId },
 				{ $set: updateObject }
 			);
 			res.sendStatus(200);
