@@ -166,7 +166,8 @@ userController.putUser = [
 				{ _id: req.params.userId },
 				{ $set: updateObject }
 			);
-			res.sendStatus(200);
+			const token = jwtUtil.generateWebToken(user);
+			res.status(200).json(token);
 		} catch (error) {
 			if (
 				error.name === "JsonWebTokenError" ||
