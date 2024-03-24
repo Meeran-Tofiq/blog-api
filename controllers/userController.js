@@ -186,7 +186,7 @@ userController.putUser = [
 
 userController.deleteUser = asyncHandler(async (req, res, next) => {});
 
-userController.login = [
+userController.postLogin = [
 	body("username")
 		.trim()
 		.notEmpty()
