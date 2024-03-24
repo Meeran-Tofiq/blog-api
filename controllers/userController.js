@@ -6,7 +6,57 @@ const bcrypt = require("bcryptjs");
 
 let userController = {};
 
-userController.postUser = asyncHandler((req, res, next) => {});
+userController.postUser = [
+	body("username")
+		.trim()
+		.isLength({ min: 1 })
+		.escape()
+		.withMessage("Username must not be empty.")
+		.custom(async (value) => {
+			const user = await User.findOne({
+				username: value,
+			}).exec();
+
+			if (user) return false;
+
+			return true;
+		})
+		.withMessage("Username is already taken."),
+	body("password")
+		.trim()
+		.isLength({ min: 1 })
+		.escape()
+		.withMessage("Password must not be empty."),
+	body("canPost").trim().isBoolean().escape(),
+	body("passwordConfirmation")
+		.custom((value, { req }) => {
+			return value === req.body.password;
+		})
+		.withMessage("Password and confirm password do not match."),
+	asyncHandler(async (req, res, next) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		try {
+			bcrypt.hash(req.body.password, 10, async (err, hash) => {
+				if (err) return next(err);
+
+				const user = new User({
+					username: req.body.username,
+					password: hash,
+					canPost: req.body.canPost,
+				});
+
+				await user.save();
+				const token = jwtUtil.generateWebToken(user);
+				res.status(200).json(token);
+			});
+		} catch (error) {}
+	}),
+];
 
 userController.getUser = asyncHandler((req, res, next) => {});
 
@@ -38,7 +88,8 @@ userController.login = [
 
 			if (!user || !match) throw new Error("CastError");
 
-			res.status(200).json(jwtUtil.generateWebToken(user));
+			const token = jwtUtil.generateWebToken(user);
+			res.status(200).json(token);
 		} catch (error) {
 			if (
 				error.name === "JsonWebTokenError" ||
