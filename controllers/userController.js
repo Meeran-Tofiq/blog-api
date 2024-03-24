@@ -128,7 +128,6 @@ userController.putUser = [
 			return value === req.body.password;
 		})
 		.withMessage("Password and confirm password do not match."),
-	,
 	asyncHandler(async (req, res, next) => {
 		const errors = validationResult(req);
 
