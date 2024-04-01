@@ -51,7 +51,30 @@ commentController.postComment = [
 	}),
 ];
 
-commentController.getComment = asyncHandler((req, res, next) => {});
+commentController.getComment = asyncHandler(async (req, res, next) => {
+	try {
+		const comment = await Comment.findById(req.params.commentId);
+
+		if (!comment) return res.status(404).json("Comment not found.");
+
+		res.status(200).json({ data: comment });
+	} catch (error) {
+		res.status(500).json("Internal server error.");
+	}
+});
+
+commentController.getMultipleComments = asyncHandler(async (req, res, next) => {
+	try {
+		const comments = await Comment.find()
+			.sort({ date: -1 })
+			.limit(20)
+			.exec();
+
+		if (!comments) return res.status(404).json("Comments not found.");
+
+		res.status(200).json({ data: comments });
+	} catch (error) {}
+});
 
 commentController.putComment = asyncHandler((req, res, next) => {});
 
