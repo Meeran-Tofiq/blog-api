@@ -76,7 +76,53 @@ commentController.getMultipleComments = asyncHandler(async (req, res, next) => {
 	} catch (error) {}
 });
 
-commentController.putComment = asyncHandler((req, res, next) => {});
+commentController.putComment = [
+	body("content")
+		.trim()
+		.escape()
+		.notEmpty()
+		.withMessage("Comment cannot be empty."),
+	asyncHandler(async (req, res, next) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		try {
+			const decoded = await jwtUtil.verifyWebToken(req.token);
+			const user = decoded.user;
+			const commentToUpdate = await Comment.findById(
+				req.params.commentId
+			).exec();
+
+			if (!user) return res.status(404).json("User not found.");
+			if (!commentToUpdate)
+				return res.status(404).json("Comment not found.");
+			if (commentToUpdate.user.toString() !== user._id)
+				return res.status(403).json("User not authorized.");
+
+			await Comment.updateOne(
+				{ _id: req.params.commentId },
+				{
+					$set: {
+						content: req.body.content,
+					},
+				}
+			);
+			res.sendStatus(200);
+		} catch (error) {
+			if (
+				error.name === "JsonWebTokenError" ||
+				error.name === "TokenExpiredError"
+			) {
+				res.status(403).json("Invalid or expired token.");
+			} else {
+				res.status(500).json("Internal server error.");
+			}
+		}
+	}),
+];
 
 commentController.deleteComment = asyncHandler((req, res, next) => {});
 
