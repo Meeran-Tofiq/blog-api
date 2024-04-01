@@ -82,7 +82,7 @@ userController.getUser = asyncHandler(async (req, res, next) => {
 		if (user.username !== tokenUser.username)
 			throw new Error("Unauthorized");
 
-		res.json({ uesr });
+		res.json({ data: uesr });
 	} catch (error) {
 		if (
 			error.name === "JsonWebTokenError" ||
