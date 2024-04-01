@@ -1,10 +1,55 @@
+const BlogPost = require("../models/blogPost");
 const Comment = require("../models/comment");
+const User = require("../models/user");
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
+const jwtUtil = require("../util/jwtUtil");
 
 let commentController = {};
 
-commentController.postComment = asyncHandler((req, res, next) => {});
+commentController.postComment = [
+	body("content")
+		.trim()
+		.escape()
+		.notEmpty()
+		.withMessage("Comment cannot be empty."),
+	asyncHandler(async (req, res, next) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		try {
+			const decoded = await jwtUtil.verifyWebToken(req.token);
+			const user = decoded.user;
+			const blogPost = await BlogPost.findById(
+				req.params.blogPostId
+			).exec();
+
+			if (!user) return res.status(404).json("User not found.");
+			if (!blogPost) return res.status(404).json("Blog post not found.");
+
+			const comment = new Comment({
+				user: user._id,
+				blogPost: blogPost._id,
+				content: req.body.content,
+			});
+
+			await comment.save();
+			res.sendStatus(200);
+		} catch (error) {
+			if (
+				error.name === "JsonWebTokenError" ||
+				error.name === "TokenExpiredError"
+			) {
+				res.status(403).json("Invalid or expired token.");
+			} else {
+				res.status(500).json("Internal server error.");
+			}
+		}
+	}),
+];
 
 commentController.getComment = asyncHandler((req, res, next) => {});
 
