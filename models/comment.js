@@ -14,7 +14,7 @@ const Comment = new Schema(
 	},
 	{
 		virtuals: {
-			date: {
+			formattedDate: {
 				get() {
 					return DateTime.fromJSDate(this.due_back).toLocaleString(
 						DateTime.DATETIME_MED
