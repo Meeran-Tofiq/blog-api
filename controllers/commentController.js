@@ -124,6 +124,31 @@ commentController.putComment = [
 	}),
 ];
 
-commentController.deleteComment = asyncHandler((req, res, next) => {});
+commentController.deleteComment = asyncHandler(async (req, res, next) => {
+	try {
+		const decoded = await jwtUtil.verifyWebToken(req.token);
+		const user = decoded.user;
+		const commentToUpdate = await Comment.findById(
+			req.params.commentId
+		).exec();
+
+		if (!user) return res.status(404).json("User not found.");
+		if (!commentToUpdate) return res.status(404).json("Comment not found.");
+		if (commentToUpdate.user.toString() !== user._id)
+			return res.status(403).json("User not authorized.");
+
+		await Comment.deleteOne({ _id: req.params.commentId });
+		res.sendStatus(200);
+	} catch (error) {
+		if (
+			error.name === "JsonWebTokenError" ||
+			error.name === "TokenExpiredError"
+		) {
+			res.status(403).json("Invalid or expired token.");
+		} else {
+			res.status(500).json("Internal server error.");
+		}
+	}
+});
 
 module.exports = commentController;
