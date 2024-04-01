@@ -6,6 +6,13 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const mongoose = require("mongoose");
+const compression = require("compression");
+const helmet = require("helmet");
+const RateLimit = require("express-rate-limit");
+const limiter = RateLimit({
+	windowMs: 1 * 60 * 1000, // 1 minute
+	max: 50,
+});
 
 var apiRouter = require("./routes/api");
 const { extractToken } = require("./util/jwtUtil");
@@ -21,6 +28,15 @@ async function main() {
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
+app.use(compression());
+app.use(
+	helmet.contentSecurityPolicy({
+		directives: {
+			"script-src": ["'self'"],
+		},
+	})
+);
+app.use(limiter);
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
