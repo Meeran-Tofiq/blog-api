@@ -12,6 +12,7 @@ const limiter = RateLimit({
 	windowMs: 1 * 60 * 1000, // 1 minute
 	max: 50,
 });
+const cors = require("cors");
 
 var apiRouter = require("./routes/api");
 const { extractToken } = require("./util/jwtUtil");
@@ -27,6 +28,7 @@ async function main() {
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
+app.use(cors());
 app.use(compression());
 app.use(limiter);
 app.use(logger("dev"));
