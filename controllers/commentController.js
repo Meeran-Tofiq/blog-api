@@ -65,7 +65,7 @@ commentController.getComment = asyncHandler(async (req, res, next) => {
 
 commentController.getMultipleComments = asyncHandler(async (req, res, next) => {
 	try {
-		const comments = await Comment.find()
+		const comments = await Comment.find({ blogPost: req.params.blogPostId })
 			.sort({ date: -1 })
 			.limit(20)
 			.exec();
