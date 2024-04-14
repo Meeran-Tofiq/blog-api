@@ -60,7 +60,9 @@ blogPostController.postBlogPost = [
 
 blogPostController.getBlogPost = asyncHandler(async (req, res, next) => {
 	try {
-		const blogPost = await BlogPost.findById(req.params.blogPostId).exec();
+		const blogPost = await BlogPost.findById(req.params.blogPostId)
+			.populate("user", "username")
+			.exec();
 		if (!blogPost) {
 			return res.status(404).json("Blog post not found.");
 		}
@@ -74,6 +76,7 @@ blogPostController.getMultipleBlogPosts = asyncHandler(
 	async (req, res, next) => {
 		try {
 			const blogPosts = await BlogPost.find()
+				.populate("user", "username")
 				.sort({ date: -1 })
 				.limit(20)
 				.exec();
