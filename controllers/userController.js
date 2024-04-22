@@ -17,9 +17,7 @@ userController.postUser = [
 				username: value,
 			}).exec();
 
-			if (user) return false;
-
-			return true;
+			if (user) throw new Error("Username already in use.");
 		})
 		.withMessage("Username is already taken."),
 	body("password")
