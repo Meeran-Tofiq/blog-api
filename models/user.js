@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const User = new Schema({
-	username: { type: String, required: true, minLength: 5 },
+	username: { type: String, required: true, minLength: 5, unique: true },
 	password: { type: String, required: true, minLength: 12 },
 	canPost: { type: Boolean, required: true },
 });
