@@ -53,7 +53,9 @@ commentController.postComment = [
 
 commentController.getComment = asyncHandler(async (req, res, next) => {
 	try {
-		const comment = await Comment.findById(req.params.commentId);
+		const comment = await Comment.findById(req.params.commentId)
+			.populate("user", "username")
+			.exec();
 
 		if (!comment) return res.status(404).json("Comment not found.");
 
@@ -68,6 +70,7 @@ commentController.getMultipleComments = asyncHandler(async (req, res, next) => {
 		const comments = await Comment.find({ blogPost: req.params.blogPostId })
 			.sort({ date: -1 })
 			.limit(20)
+			.populate("user", "username")
 			.exec();
 
 		if (!comments) return res.status(404).json("Comments not found.");
