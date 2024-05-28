@@ -244,7 +244,8 @@ userController.postLogin = [
 			if (!user || !match) throw new Error("CastError");
 
 			const token = jwtUtil.generateWebToken(user);
-			res.status(200).json({ data: token });
+			const { password, ...userData } = user;
+			res.status(200).json({ data: { token, user: userData } });
 		} catch (error) {
 			if (
 				error.name === "JsonWebTokenError" ||
