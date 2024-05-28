@@ -54,7 +54,9 @@ userController.postUser = [
 
 				await user.save();
 				const token = jwtUtil.generateWebToken(user);
-				res.status(200).json(token);
+				res.status(200).json({
+					data: { token, username: user.username },
+				});
 			});
 		} catch (error) {
 			if (
@@ -80,7 +82,7 @@ userController.getUser = asyncHandler(async (req, res, next) => {
 		if (user.username !== tokenUser.username)
 			throw new Error("Unauthorized");
 
-		res.json({ data: uesr });
+		res.json({ data: user });
 	} catch (error) {
 		if (
 			error.name === "JsonWebTokenError" ||
@@ -165,7 +167,7 @@ userController.putUser = [
 				{ $set: updateObject }
 			);
 			const token = jwtUtil.generateWebToken(user);
-			res.status(200).json(token);
+			res.status(200).json({ data: token });
 		} catch (error) {
 			if (
 				error.name === "JsonWebTokenError" ||
@@ -242,7 +244,7 @@ userController.postLogin = [
 			if (!user || !match) throw new Error("CastError");
 
 			const token = jwtUtil.generateWebToken(user);
-			res.status(200).json(token);
+			res.status(200).json({ data: token });
 		} catch (error) {
 			if (
 				error.name === "JsonWebTokenError" ||
