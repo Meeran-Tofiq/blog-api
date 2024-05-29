@@ -11,6 +11,7 @@ const Comment = new Schema(
 		},
 		content: { type: String, required: true },
 		date: { type: Date, required: true, default: Date.now() },
+		isEdited: { type: Boolean, required: true, default: false },
 	},
 	{
 		virtuals: {
