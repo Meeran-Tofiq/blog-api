@@ -54,9 +54,8 @@ userController.postUser = [
 
 				await user.save();
 				const token = jwtUtil.generateWebToken(user);
-				res.status(200).json({
-					data: { token, username: user.username },
-				});
+				const { password, ...userData } = user.toObject();
+				res.status(200).json({ data: { token, user: userData } });
 			});
 		} catch (error) {
 			if (
@@ -244,7 +243,7 @@ userController.postLogin = [
 			if (!user || !match) throw new Error("CastError");
 
 			const token = jwtUtil.generateWebToken(user);
-			const { password, ...userData } = user;
+			const { password, ...userData } = user.toObject();
 			res.status(200).json({ data: { token, user: userData } });
 		} catch (error) {
 			if (
