@@ -110,6 +110,7 @@ commentController.putComment = [
 				{
 					$set: {
 						content: req.body.content,
+						isEdited: true,
 					},
 				}
 			);
