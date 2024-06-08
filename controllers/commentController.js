@@ -4,17 +4,16 @@ const User = require("../models/user");
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 const jwtUtil = require("../util/jwtUtil");
+const sanitizeHtml = require("sanitize-html");
 
 let commentController = {};
 
 commentController.postComment = [
-	body("content")
-		.trim()
-		.escape()
-		.notEmpty()
-		.withMessage("Comment cannot be empty."),
+	body("content").trim().notEmpty().withMessage("Comment cannot be empty."),
 	asyncHandler(async (req, res, next) => {
 		const errors = validationResult(req);
+
+		const content = sanitizeHtml(req.body.content);
 
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ errors: errors.array() });
@@ -33,7 +32,7 @@ commentController.postComment = [
 			const comment = new Comment({
 				user: user._id,
 				blogPost: blogPost._id,
-				content: req.body.content,
+				content,
 			});
 
 			await comment.save();
@@ -80,13 +79,11 @@ commentController.getMultipleComments = asyncHandler(async (req, res, next) => {
 });
 
 commentController.putComment = [
-	body("content")
-		.trim()
-		.escape()
-		.notEmpty()
-		.withMessage("Comment cannot be empty."),
+	body("content").trim().notEmpty().withMessage("Comment cannot be empty."),
 	asyncHandler(async (req, res, next) => {
 		const errors = validationResult(req);
+
+		const content = sanitizeHtml(req.body.content);
 
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ errors: errors.array() });
@@ -109,7 +106,7 @@ commentController.putComment = [
 				{ _id: req.params.commentId },
 				{
 					$set: {
-						content: req.body.content,
+						content,
 						isEdited: true,
 					},
 				}
