@@ -3,6 +3,7 @@ const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 const jwtUtil = require("../util/jwtUtil");
 const bcrypt = require("bcryptjs");
+const blogPost = require("../models/blogPost");
 
 let userController = {};
 
@@ -259,5 +260,32 @@ userController.postLogin = [
 		}
 	}),
 ];
+
+userController.getUserBlogPosts = asyncHandler(async (req, res, next) => {
+	try {
+		const decoded = await jwtUtil.verifyWebToken(req.token);
+		const tokenUser = decoded.user;
+		const user = await User.findById(req.params.userId);
+
+		if (!user) res.status(404).json("User not found.");
+
+		if (user.username !== tokenUser.username)
+			throw new Error("Unauthorized");
+
+		const blogPosts = await blogPost.find({ user: user.id });
+		res.status(200).json({ data: blogPosts });
+	} catch (error) {
+		if (
+			error.name === "JsonWebTokenError" ||
+			error.name === "TokenExpiredError"
+		) {
+			res.status(403).json("Invalid or expired token.");
+		} else if (error.message === "Unauthorized") {
+			res.status(403).json("User is not authorized to update this user.");
+		} else {
+			res.status(500).json("Internal server error.");
+		}
+	}
+});
 
 module.exports = userController;
