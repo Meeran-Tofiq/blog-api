@@ -272,7 +272,7 @@ userController.getUserBlogPosts = asyncHandler(async (req, res, next) => {
 		if (user.username !== tokenUser.username)
 			throw new Error("Unauthorized");
 
-		const blogPosts = await blogPost.find({ user: user.id });
+		const blogPosts = await blogPost.find({ user: user.id }).exec();
 		res.status(200).json({ data: blogPosts });
 	} catch (error) {
 		if (
@@ -281,7 +281,9 @@ userController.getUserBlogPosts = asyncHandler(async (req, res, next) => {
 		) {
 			res.status(403).json("Invalid or expired token.");
 		} else if (error.message === "Unauthorized") {
-			res.status(403).json("User is not authorized to update this user.");
+			res.status(403).json(
+				"User is not authorized to read this user's posts."
+			);
 		} else {
 			res.status(500).json("Internal server error.");
 		}
