@@ -272,7 +272,10 @@ userController.getUserBlogPosts = asyncHandler(async (req, res, next) => {
 		if (user.username !== tokenUser.username)
 			throw new Error("Unauthorized");
 
-		const blogPosts = await blogPost.find({ user: user.id }).exec();
+		const blogPosts = await blogPost
+			.find({ user: user.id })
+			.populate("user", "username")
+			.exec();
 		res.status(200).json({ data: blogPosts });
 	} catch (error) {
 		if (
