@@ -2,6 +2,7 @@ const BlogPost = require("../models/blogPost");
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 const jwtUtil = require("../util/jwtUtil");
+const sanitizeHtml = require("sanitize-html");
 
 let blogPostController = {};
 
@@ -9,18 +10,21 @@ blogPostController.postBlogPost = [
 	body("title")
 		.trim()
 		.isLength({ min: 3 })
-		.escape()
 		.withMessage("Title must be at least 3 characters."),
 	body("content")
 		.trim()
 		.isLength({ min: 3 })
-		.escape()
 		.withMessage("content must be at least 3 characters."),
 	body("isPublished")
 		.isBoolean()
 		.withMessage("Choose whether this post is published or not."),
 	asyncHandler(async (req, res, next) => {
 		const errors = validationResult(req);
+
+		const [title, content] = [
+			sanitizeHtml(req.body.title),
+			sanitizeHtml(req.body.content),
+		];
 
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ errors: errors.array() });
@@ -36,8 +40,8 @@ blogPostController.postBlogPost = [
 
 			const blogPost = new BlogPost({
 				user: user._id,
-				title: req.body.title,
-				content: req.body.content,
+				title: title,
+				content: content,
 				isPublished: req.body.isPublished,
 			});
 
@@ -92,13 +96,11 @@ blogPostController.putBlogPost = [
 		.optional()
 		.trim()
 		.isLength({ min: 3 })
-		.escape()
 		.withMessage("Title must be at least 3 characters."),
 	body("content")
 		.optional()
 		.trim()
 		.isLength({ min: 3 })
-		.escape()
 		.withMessage("content must be at least 3 characters."),
 	body("isPublished")
 		.optional()
@@ -106,6 +108,11 @@ blogPostController.putBlogPost = [
 		.withMessage("Choose whether this post is published or not."),
 	asyncHandler(async (req, res, next) => {
 		const errors = validationResult(req);
+
+		const [title, content] = [
+			sanitizeHtml(req.body.title),
+			sanitizeHtml(req.body.content),
+		];
 
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ errors: errors.array() });
@@ -130,8 +137,8 @@ blogPostController.putBlogPost = [
 				{ _id: req.params.blogPostId },
 				{
 					$set: {
-						title: req.body.title,
-						content: req.body.content,
+						title: title,
+						content: content,
 						isPublished: req.body.isPublished,
 						date: Date.now(),
 					},
