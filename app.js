@@ -1,11 +1,11 @@
 require("dotenv").config();
+require("./mongo.config");
 
 var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-const mongoose = require("mongoose");
 const compression = require("compression");
 const RateLimit = require("express-rate-limit");
 const limiter = RateLimit({
@@ -18,11 +18,6 @@ var apiRouter = require("./routes/api");
 const { extractToken } = require("./util/jwtUtil");
 
 var app = express();
-
-main().catch((err) => console.log(err));
-async function main() {
-	await mongoose.connect(process.env.MONGODB_URI);
-}
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
