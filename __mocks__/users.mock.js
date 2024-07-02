@@ -25,17 +25,17 @@ const userData = [
 let users = [];
 
 async function createUser(data) {
-	bcrypt.hash(data.password, 10, async (err, hash) => {
-		if (err) throw new Error(err);
-
+	try {
+		const hash = await bcrypt.hash(data.password, 10);
 		const user = new User({
 			...data,
 			password: hash,
 		});
-
 		await user.save();
 		users.push(user);
-	});
+	} catch (err) {
+		throw new Error(err);
+	}
 }
 
 async function createUserMocks() {
