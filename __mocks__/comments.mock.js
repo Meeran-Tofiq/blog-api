@@ -30,9 +30,7 @@ async function createComment(data) {
 }
 
 async function createCommentMocks() {
-	for (const data in commentData) {
-		await createComment(data);
-	}
+	commentData.forEach(async (data) => await createComment(data));
 }
 
 module.exports = { createCommentMocks, comments };

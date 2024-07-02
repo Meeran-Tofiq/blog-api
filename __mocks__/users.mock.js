@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 
-const UserData = [
+const userData = [
 	{
 		_id: 1,
 		username: "hello",
@@ -39,9 +39,7 @@ async function createUser(data) {
 }
 
 async function createUserMocks() {
-	for (const data in UserData) {
-		await createUser(data);
-	}
+	userData.forEach(async (data) => await createUser(data));
 }
 
 module.exports = { createUserMocks, users };

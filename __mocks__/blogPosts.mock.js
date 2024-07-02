@@ -30,9 +30,7 @@ async function createBlogPost(data) {
 }
 
 async function createBlogPostMocks() {
-	for (const data in blogPostData) {
-		await createBlogPost(data);
-	}
+	blogPostData.forEach(async (data) => await createBlogPost(data));
 }
 
 module.exports = { createBlogPostMocks, blogPosts };
