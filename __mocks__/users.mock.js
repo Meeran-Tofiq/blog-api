@@ -26,7 +26,7 @@ let users = [];
 
 async function createUser(data) {
 	bcrypt.hash(data.password, 10, async (err, hash) => {
-		if (err) throw new Error("Error in encryption of password");
+		if (err) throw new Error(err);
 
 		const user = new User({
 			...data,
