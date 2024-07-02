@@ -1,23 +1,24 @@
 const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
 const User = require("../models/user");
 
 const userData = [
 	{
-		_id: 1,
+		_id: new mongoose.Types.ObjectId(),
 		username: "hello",
 		password: "hello",
 		canPost: false,
 	},
 	{
-		_id: 2,
+		_id: new mongoose.Types.ObjectId(),
 		username: "wazzap",
 		password: "wazzap",
 		canPost: false,
 	},
 	{
-		_id: 3,
-		username: "bye",
-		password: "bye",
+		_id: new mongoose.Types.ObjectId(),
+		username: "byebye",
+		password: "byebye",
 		canPost: false,
 	},
 ];
@@ -39,7 +40,9 @@ async function createUser(data) {
 }
 
 async function createUserMocks() {
-	userData.forEach(async (data) => await createUser(data));
+	for (const data of userData) {
+		await createUser(data);
+	}
 }
 
 module.exports = { createUserMocks, users };

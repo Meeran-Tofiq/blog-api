@@ -1,27 +1,33 @@
+const mongoose = require("mongoose");
 const Comment = require("../models/comment");
+const { users } = require("./users.mock");
+const { blogPosts } = require("./blogPosts.mock");
 
-const commentData = [
-	{
-		_id: 1,
-		blogPost: 1,
-		user: 3,
-		content: "comment from 3 to 1",
-	},
-	{
-		_id: 2,
-		blogPost: 2,
-		user: 1,
-		content: "comment from 1 to 2",
-	},
-	{
-		_id: 3,
-		blogPost: 3,
-		user: 2,
-		content: "comment from 2 to 3",
-	},
-];
+let commentData = [];
+let comments = [];
 
-const comments = [];
+function initializeData() {
+	commentData = [
+		{
+			_id: new mongoose.Types.ObjectId(),
+			blogPost: blogPosts[0]._id,
+			user: users[0]._id,
+			content: "comment from 3 to 1",
+		},
+		{
+			_id: new mongoose.Types.ObjectId(),
+			blogPost: blogPosts[1]._id,
+			user: users[0]._id,
+			content: "comment from 1 to 2",
+		},
+		{
+			_id: new mongoose.Types.ObjectId(),
+			blogPost: blogPosts[2]._id,
+			user: users[0]._id,
+			content: "comment from 2 to 3",
+		},
+	];
+}
 
 async function createComment(data) {
 	const cm = new Comment(data);
@@ -30,7 +36,10 @@ async function createComment(data) {
 }
 
 async function createCommentMocks() {
-	commentData.forEach(async (data) => await createComment(data));
+	initializeData();
+	for (const data of commentData) {
+		await createComment(data);
+	}
 }
 
 module.exports = { createCommentMocks, comments };
