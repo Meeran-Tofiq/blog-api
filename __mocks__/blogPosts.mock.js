@@ -21,9 +21,12 @@ let blogPostData = [
 	},
 ];
 
+let blogPosts = [];
+
 async function createBlogPost(data) {
 	const bp = new BlogPost(data);
 	await bp.save();
+	blogPosts.push(bp);
 }
 
 async function createBlogPostMocks() {
@@ -32,4 +35,4 @@ async function createBlogPostMocks() {
 	}
 }
 
-module.exports = createBlogPostMocks;
+module.exports = { createBlogPostMocks, blogPosts };

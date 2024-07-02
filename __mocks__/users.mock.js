@@ -22,6 +22,8 @@ const UserData = [
 	},
 ];
 
+let users = [];
+
 async function createUser(data) {
 	bcrypt.hash(data.password, 10, async (err, hash) => {
 		if (err) throw new Error("Error in encryption of password");
@@ -32,6 +34,7 @@ async function createUser(data) {
 		});
 
 		await user.save();
+		users.push(user);
 	});
 }
 
@@ -41,4 +44,4 @@ async function createUserMocks() {
 	}
 }
 
-module.exports = createUserMocks;
+module.exports = { createUserMocks, users };

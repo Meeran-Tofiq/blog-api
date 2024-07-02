@@ -21,9 +21,12 @@ const commentData = [
 	},
 ];
 
+const comments = [];
+
 async function createComment(data) {
 	const cm = new Comment(data);
 	await cm.save();
+	comments.push(cm);
 }
 
 async function createCommentMocks() {
@@ -32,4 +35,4 @@ async function createCommentMocks() {
 	}
 }
 
-module.exports = createCommentMocks;
+module.exports = { createCommentMocks, comments };
