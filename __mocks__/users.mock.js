@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const User = require("../models/user");
 
-const userData = [
+const userMockData = [
 	{
 		_id: new mongoose.Types.ObjectId(),
 		username: "hello",
@@ -40,9 +40,9 @@ async function createUser(data) {
 }
 
 async function createUserMocks() {
-	for (const data of userData) {
+	for (const data of userMockData) {
 		await createUser(data);
 	}
 }
 
-module.exports = { createUserMocks, users };
+module.exports = { createUserMocks, users, userMockData };
