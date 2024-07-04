@@ -45,5 +45,27 @@ describe("Users route", () => {
 				.get(baseUrl + "/" + users[0]._id.toString())
 				.expect(403);
 		});
+
+		it("should get user data if logged in", async () => {
+			const [username, password] = [
+				users[0].username,
+				userMockData[0].password,
+			];
+			const loginRes = await request(app)
+				.post(baseUrl + "/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				});
+			const token = await loginRes.body.data.token;
+
+			const response = await request(app)
+				.get(baseUrl + "/" + users[0]._id.toString())
+				.set({ authorization: `bearer ${token}` })
+				.expect(200)
+				.expect("Content-Type", /json/)
+				.expect((res) => res.body.data.username === username);
+		});
 	});
 });
