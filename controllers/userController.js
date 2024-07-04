@@ -76,6 +76,7 @@ userController.getUser = asyncHandler(async (req, res, next) => {
 		const decoded = await jwtUtil.verifyWebToken(req.token);
 		const tokenUser = decoded.user;
 		const user = await User.findById(req.params.userId);
+		console.log(tokenUser);
 
 		if (!user) res.status(404).json("User not found.");
 
@@ -166,7 +167,8 @@ userController.putUser = [
 				{ _id: req.params.userId },
 				{ $set: updateObject }
 			);
-			const token = jwtUtil.generateWebToken(user);
+			const updatedUser = await User.findById(req.params.userId).exec();
+			const token = jwtUtil.generateWebToken(updatedUser);
 			res.status(200).json({ data: token });
 		} catch (error) {
 			if (
