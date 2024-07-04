@@ -11,12 +11,11 @@ const { createUserMocks } = require("./__mocks__/users.mock");
 const { createBlogPostMocks } = require("./__mocks__/blogPosts.mock");
 const { createCommentMocks } = require("./__mocks__/comments.mock");
 
-let app;
+const app = express();
 
 beforeAll(async () => {
 	await initializeMongoServer();
 
-	app = express();
 	app.use(express.urlencoded({ extended: false }));
 	app.use(express.json());
 	app.use(extractToken);
