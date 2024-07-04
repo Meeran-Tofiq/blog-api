@@ -21,6 +21,22 @@ describe("Users route", () => {
 				.expect(200)
 				.expect("Content-Type", /json/);
 		});
+
+		it("should create a new user when provided with adequate info", async () => {
+			const data = {
+				username: "newUser",
+				password: "Pa55word1976%",
+				passwordConfirmation: "Pa55word1976%",
+				canPost: false,
+			};
+
+			await request(app)
+				.post(baseUrl)
+				.type("form")
+				.send(data)
+				.expect(200)
+				.expect("Content-Type", /json/);
+		});
 	});
 
 	describe("GET", () => {
