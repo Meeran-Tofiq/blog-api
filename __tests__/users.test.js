@@ -62,7 +62,48 @@ describe("Users route", () => {
 
 			const response = await request(app)
 				.get(baseUrl + "/" + users[0]._id.toString())
-				.set({ authorization: `bearer ${token}` })
+				.set("authorization", `Bearer ${token}`)
+				.expect(200)
+				.expect("Content-Type", /json/)
+				.expect((res) => res.body.data.username === username);
+		});
+	});
+
+	describe("PUT", () => {
+		it("should give a 403 error, if user not logged in", async () => {
+			await request(app)
+				.put(baseUrl + `/${users[0]._id.toString()}`)
+				.send({ username: "What?????" })
+				.expect(403);
+		});
+
+		it("should allow you to change information when logged in", async () => {
+			const expectedUsername = "What????";
+			const [username, password] = [
+				users[0].username,
+				userMockData[0].password,
+			];
+			const loginRes = await request(app)
+				.post(baseUrl + "/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				})
+				.expect(200);
+			let token = await loginRes.body.data.token;
+
+			const response = await request(app)
+				.put(baseUrl + `/${users[0]._id.toString()}`)
+				.set("Authorization", `Bearer ${token}`)
+				.send({ username: expectedUsername })
+				.expect(200);
+
+			token = response.body.data;
+
+			await request(app)
+				.get(baseUrl + `/${users[0]._id.toString()}`)
+				.set("Authorization", `Bearer ${token}`)
 				.expect(200)
 				.expect("Content-Type", /json/)
 				.expect((res) => res.body.data.username === username);
