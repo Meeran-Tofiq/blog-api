@@ -109,4 +109,38 @@ describe("Users route", () => {
 				.expect((res) => res.body.data.username === username);
 		});
 	});
+
+	describe("DELETE", () => {
+		it("should not allow it if user is not logged in, and throw a 403", async () => {
+			await request(app)
+				.delete(baseUrl + `/${users[0]._id.toString()}`)
+				.expect(403);
+		});
+
+		it("should allow a delete if user is logged in", async () => {
+			const [username, password] = [
+				users[1].username,
+				userMockData[1].password,
+			];
+			const loginRes = await request(app)
+				.post(baseUrl + "/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				})
+				.expect(200);
+			let token = await loginRes.body.data.token;
+
+			await request(app)
+				.delete(baseUrl + `/${users[1]._id.toString()}`)
+				.set("Authorization", `Bearer ${token}`)
+				.expect(200);
+
+			await request(app)
+				.get(baseUrl + `/${users[1]._id.toString()}`)
+				.set("Authorization", `Bearer ${token}`)
+				.expect(404);
+		});
+	});
 });
