@@ -22,4 +22,4 @@ This is a backend api that was made for The Odin Project. It contains models for
 
 # Live Preview
 
-Click the following [link]() to preview.
+Click the following [link](https://meeran-blog.adaptable.app) to preview.
