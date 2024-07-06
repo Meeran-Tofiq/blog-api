@@ -76,7 +76,6 @@ userController.getUser = asyncHandler(async (req, res, next) => {
 		const decoded = await jwtUtil.verifyWebToken(req.token);
 		const tokenUser = decoded.user;
 		const user = await User.findById(req.params.userId);
-		console.log(tokenUser);
 
 		if (!user) res.status(404).json("User not found.");
 
