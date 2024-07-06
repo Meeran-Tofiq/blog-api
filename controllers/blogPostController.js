@@ -67,12 +67,14 @@ blogPostController.getBlogPost = asyncHandler(async (req, res, next) => {
 		const blogPost = await BlogPost.findById(req.params.blogPostId)
 			.populate("user", "username")
 			.exec();
-		if (!blogPost) {
-			return res.status(404).json("Blog post not found.");
-		}
+
 		res.status(200).json({ data: blogPost });
 	} catch (error) {
-		res.status(500).json("Internal server error.");
+		if (error.name === "CastError") {
+			res.status(404).json("Blog post not found.");
+		} else {
+			res.status(500).json("Internal server error.");
+		}
 	}
 });
 
