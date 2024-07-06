@@ -19,7 +19,7 @@ const userMockData = [
 		_id: new mongoose.Types.ObjectId(),
 		username: "byebye",
 		password: "byebye",
-		canPost: false,
+		canPost: true,
 	},
 ];
 
