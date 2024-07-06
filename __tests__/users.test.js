@@ -1,4 +1,5 @@
 const { users, userMockData } = require("../__mocks__/users.mock");
+const { blogPosts } = require("../__mocks__/blogPosts.mock");
 const request = require("supertest");
 const app = require("../jest.setup");
 
@@ -66,6 +67,32 @@ describe("Users route", () => {
 				.expect(200)
 				.expect("Content-Type", /json/)
 				.expect((res) => res.body.data.username === username);
+		});
+
+		it("should return a user's blog posts", async () => {
+			const [username, password] = [
+				users[0].username,
+				userMockData[0].password,
+			];
+			const loginRes = await request(app)
+				.post(baseUrl + "/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				});
+			const token = await loginRes.body.data.token;
+
+			const response = await request(app)
+				.get(baseUrl + `/${users[0]._id.toString()}/blog-posts`)
+				.set("authorization", `Bearer ${token}`)
+				.expect(200);
+
+			const userId = users[0]._id.toString();
+
+			response.body.data.forEach((post) => {
+				expect(post.user._id).toEqual(userId);
+			});
 		});
 	});
 
