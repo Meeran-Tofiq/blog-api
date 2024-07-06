@@ -3,6 +3,7 @@ const { users, userMockData } = require("../__mocks__/users.mock");
 const request = require("supertest");
 const mongoose = require("mongoose");
 const app = require("../jest.setup");
+const blogPost = require("../models/blogPost");
 
 const baseUrl = "/api/blog-posts";
 
@@ -116,6 +117,71 @@ describe("Blog Posts route", () => {
 			};
 
 			await request(app).post(baseUrl).send(blogPost).expect(403);
+		});
+	});
+
+	describe("PUT", () => {
+		it("should not allow a user that hasn't logged in to edit a blog post", async () => {
+			await request(app)
+				.put(baseUrl + `/${blogPosts[0]._id.toString()}`)
+				.type("from")
+				.send({ content: "New content babyyyy" })
+				.expect(403);
+		});
+
+		it("should not allow a user, even if signed in, to edit another user's post", async () => {
+			const newContent = "New content babyyyy";
+			const [username, password] = [
+				users[2].username,
+				userMockData[2].password,
+			];
+			const loginRes = await request(app)
+				.post("/api/users/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				})
+				.expect(200);
+			let token = await loginRes.body.data.token;
+
+			await request(app)
+				.put(baseUrl + `/${blogPosts[0]._id.toString()}`)
+				.set("Authorization", `Bearer ${token}`)
+				.type("from")
+				.send({ content: newContent })
+				.expect(403);
+		});
+
+		it("should allow the creator of the blog post, if signed in, to edit their post", async () => {
+			const newContent = "New content babyyyy";
+			const [username, password] = [
+				users[2].username,
+				userMockData[2].password,
+			];
+			const loginRes = await request(app)
+				.post("/api/users/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				})
+				.expect(200);
+			let token = await loginRes.body.data.token;
+
+			await request(app)
+				.put(baseUrl + `/${blogPosts[2]._id.toString()}`)
+				.set("Authorization", `Bearer ${token}`)
+				.type("from")
+				.send({ content: newContent })
+				.expect(200);
+
+			await request(app)
+				.get(baseUrl + `/${blogPosts[2]._id.toString()}`)
+				.expect(200)
+				.then((res) =>
+					expect(res.body.data.content).toEqual(newContent)
+				);
 		});
 	});
 });
