@@ -1,3 +1,4 @@
+const { users, userMockData } = require("../__mocks__/users.mock");
 const { comments } = require("../__mocks__/comments.mock");
 const { blogPosts } = require("../__mocks__/blogPosts.mock");
 const request = require("supertest");
@@ -79,6 +80,43 @@ describe("Comments route", () => {
 			};
 
 			expect(resBody).toEqual(expectedBody);
+		});
+	});
+
+	describe("POST", () => {
+		it("should allow a user to post a comment under a post", async () => {
+			const blogPostId = blogPosts[1]._id.toString();
+			const content = "This is the content of the new comment";
+			const [username, password] = [
+				users[2].username,
+				userMockData[2].password,
+			];
+			const loginRes = await request(app)
+				.post("/api/users/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				})
+				.expect(200);
+			const token = await loginRes.body.data.token;
+
+			await request(app)
+				.post(baseUrl(blogPostId))
+				.set("Authorization", `Bearer ${token}`)
+				.type("form")
+				.send({ content })
+				.expect(200);
+
+			await request(app)
+				.get(baseUrl(blogPostId))
+				.expect(200)
+				.then((res) => {
+					const comment = res.body.data.find(
+						(comment) => comment.content === content
+					);
+					expect(comment).toBeDefined();
+				});
 		});
 	});
 });
