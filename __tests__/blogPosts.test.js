@@ -1,4 +1,5 @@
 const { blogPosts } = require("../__mocks__/blogPosts.mock");
+const { users, userMockData } = require("../__mocks__/users.mock");
 const request = require("supertest");
 const mongoose = require("mongoose");
 const app = require("../jest.setup");
@@ -62,6 +63,59 @@ describe("Blog Posts route", () => {
 			const response = await request(app)
 				.get(baseUrl + "/0909")
 				.expect(404);
+		});
+	});
+
+	describe("POST", () => {
+		it("should allow a user that has the ability to post, to post", async () => {
+			const blogPost = {
+				title: "This is some title",
+				content: "This is some content",
+				isPublished: true,
+			};
+			const [username, password] = [
+				users[2].username,
+				userMockData[2].password,
+			];
+			const loginRes = await request(app)
+				.post("/api/users/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				})
+				.expect(200);
+			let token = await loginRes.body.data.token;
+
+			await request(app)
+				.post(baseUrl)
+				.set("Authorization", `Bearer ${token}`)
+				.type("form")
+				.send(blogPost)
+				.expect(200);
+
+			await request(app)
+				.get(baseUrl)
+				.expect(200)
+				.then((res) => {
+					const createdPost = res.body.data.find(
+						(post) =>
+							post.title === blogPost.title &&
+							post.content === blogPost.content
+					);
+
+					expect(createdPost).toBeDefined();
+				});
+		});
+
+		it("should not allow a user without the ability to post, to post", async () => {
+			const blogPost = {
+				title: "This is some title",
+				content: "This is some content",
+				isPublished: true,
+			};
+
+			await request(app).post(baseUrl).send(blogPost).expect(403);
 		});
 	});
 });
