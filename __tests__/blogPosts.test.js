@@ -31,5 +31,37 @@ describe("Blog Posts route", () => {
 
 			expect(responseBody).toEqual(expectedBody);
 		});
+
+		it("should return a specific blog post, if it's available in the DB", async () => {
+			const response = await request(app)
+				.get(baseUrl + `/${blogPosts[0]._id.toString()}`)
+				.expect(200)
+				.expect("Content-Type", /json/);
+
+			const blogPost = response.body.data;
+			const responseBody = {
+				...blogPost,
+				_id: blogPost._id.toString(),
+				date: new Date(blogPost.date),
+				user: blogPost.user._id.toString(),
+			};
+
+			const expectedBody = {
+				_id: blogPosts[0]._id.toString(),
+				user: blogPosts[0].user.toString(),
+				title: blogPosts[0].title,
+				content: blogPosts[0].content,
+				date: blogPosts[0].date,
+				__v: blogPosts[0].__v,
+			};
+
+			expect(responseBody).toEqual(expectedBody);
+		});
+
+		it("should return a 404 error when a specified blog post doesn't exist", async () => {
+			const response = await request(app)
+				.get(baseUrl + "/0909")
+				.expect(404);
+		});
 	});
 });
