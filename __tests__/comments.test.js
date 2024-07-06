@@ -192,4 +192,63 @@ describe("Comments route", () => {
 				});
 		});
 	});
+
+	describe("DELETE", () => {
+		it("should not allow an unsigned user to delete a comment", async () => {
+			await request(app)
+				.delete(
+					baseUrl(blogPosts[0]._id.toString()) +
+						`/${comments[0]._id.toString()}`
+				)
+				.expect(403);
+		});
+
+		it("should not allow a different user to delete a another user's comment", async () => {
+			const [username, password] = [
+				users[2].username,
+				userMockData[2].password,
+			];
+			const loginRes = await request(app)
+				.post("/api/users/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				})
+				.expect(200);
+			const token = await loginRes.body.data.token;
+
+			await request(app)
+				.delete(
+					baseUrl(blogPosts[0]._id.toString()) +
+						`/${comments[0]._id.toString()}`
+				)
+				.set("Authorization", `Bearer ${token}`)
+				.expect(403);
+		});
+
+		it("should allow the owner of a comment to delete it", async () => {
+			const blogPostId = blogPosts[0]._id.toString();
+			const commentId = comments[0]._id.toString();
+
+			const [username, password] = [
+				users[0].username,
+				userMockData[0].password,
+			];
+			const loginRes = await request(app)
+				.post("/api/users/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				})
+				.expect(200);
+			const token = await loginRes.body.data.token;
+
+			await request(app)
+				.delete(baseUrl(blogPostId) + `/${commentId}`)
+				.set("Authorization", `Bearer ${token}`)
+				.expect(200);
+		});
+	});
 });
