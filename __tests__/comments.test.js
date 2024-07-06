@@ -119,4 +119,77 @@ describe("Comments route", () => {
 				});
 		});
 	});
+
+	describe("PUT", () => {
+		it("should not allow an unsigned user to edit a comment", async () => {
+			const newContent = "new content for testing";
+			await request(app)
+				.put(
+					baseUrl(blogPosts[0]._id.toString()) +
+						`/${comments[0]._id.toString()}`
+				)
+				.send({ content: newContent })
+				.expect(403);
+		});
+
+		it("should not allow a different user to edit a another user's comment", async () => {
+			const newContent = "new content for testing";
+			const [username, password] = [
+				users[2].username,
+				userMockData[2].password,
+			];
+			const loginRes = await request(app)
+				.post("/api/users/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				})
+				.expect(200);
+			const token = await loginRes.body.data.token;
+
+			await request(app)
+				.put(
+					baseUrl(blogPosts[0]._id.toString()) +
+						`/${comments[0]._id.toString()}`
+				)
+				.set("Authorization", `Bearer ${token}`)
+				.send({ content: newContent })
+				.expect(403);
+		});
+
+		it("should allow the owner of a comment to edit it", async () => {
+			const newContent = "new content for testing";
+			const blogPostId = blogPosts[0]._id.toString();
+			const commentId = comments[0]._id.toString();
+
+			const [username, password] = [
+				users[0].username,
+				userMockData[0].password,
+			];
+			const loginRes = await request(app)
+				.post("/api/users/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				})
+				.expect(200);
+			const token = await loginRes.body.data.token;
+
+			await request(app)
+				.put(baseUrl(blogPostId) + `/${commentId}`)
+				.set("Authorization", `Bearer ${token}`)
+				.send({ content: newContent })
+				.expect(200);
+
+			await request(app)
+				.get(baseUrl(blogPostId) + `/${commentId}`)
+				.expect(200)
+				.then((res) => {
+					const content = res.body.data.content;
+					expect(content).toEqual(newContent);
+				});
+		});
+	});
 });
