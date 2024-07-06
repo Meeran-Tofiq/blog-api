@@ -184,4 +184,62 @@ describe("Blog Posts route", () => {
 				);
 		});
 	});
+
+	describe("DELETE", () => {
+		it("should not allow an unlogged user to delete a post", async () => {
+			await request(app)
+				.delete(baseUrl + `/${blogPosts[0]._id.toString()}`)
+				.expect(403);
+		});
+
+		it("should not allow a blog post to be deleted by a user that isn't the owner", async () => {
+			const [username, password] = [
+				users[2].username,
+				userMockData[2].password,
+			];
+			const loginRes = await request(app)
+				.post("/api/users/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				})
+				.expect(200);
+			let token = await loginRes.body.data.token;
+
+			await request(app)
+				.delete(baseUrl + `/${blogPosts[0]._id.toString()}`)
+				.set("Authorization", `Bearer ${token}`)
+				.expect(403);
+		});
+
+		it("should allow the owner of a blog post to delete it", async () => {
+			const [username, password] = [
+				users[0].username,
+				userMockData[0].password,
+			];
+			const loginRes = await request(app)
+				.post("/api/users/login")
+				.type("form")
+				.send({
+					username,
+					password,
+				})
+				.expect(200);
+			let token = await loginRes.body.data.token;
+
+			const prevBlogPostsLength = (await request(app).get(baseUrl)).body
+				.data.length;
+
+			await request(app)
+				.delete(baseUrl + `/${blogPosts[0]._id.toString()}`)
+				.set("Authorization", `Bearer ${token}`)
+				.expect(200);
+
+			const currentBlogPostsLength = (await request(app).get(baseUrl))
+				.body.data.length;
+
+			expect(currentBlogPostsLength).toEqual(prevBlogPostsLength - 1);
+		});
+	});
 });
